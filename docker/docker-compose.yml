@@ -1,0 +1,74 @@
+services:  
+  gateway:
+    build: ../gateway
+    image: thdragon/gateway
+    ports:
+      - "8000:8000"
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: msa-consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_RABBITMQ_HOST: msa-rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    networks:
+      - rps-net
+      
+  logs:
+    build: ../logs
+    image: thdragon/logs
+    ports:
+      - "8580:8580"
+    environment:
+      SPRING_CLOUD_CONSUL_HOST: msa-consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    networks:
+      - rps-net
+
+  leaderboard:
+    build: ../leaderboard
+    image: thdragon/leaderboard
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://msa-mysql:3306/msa?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowMultiQueries=true
+      SPRING_DATASOURCE_USERNAME: lastcoder
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_RABBITMQ_HOST: msa-rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SPRING_CLOUD_CONSUL_HOST: msa-consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    networks:
+      - rps-net
+      
+  rpsgame:
+    build: ../rpsgame
+    image: thdragon/rpsgame
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://msa-mysql:3306/msa?allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowMultiQueries=true
+      SPRING_DATASOURCE_USERNAME: lastcoder
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_RABBITMQ_HOST: msa-rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      SPRING_CLOUD_CONSUL_HOST: msa-consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    networks:
+      - rps-net
+      
+  rps-front:
+    build: D:\\source\\react\\rps-front
+    image: thdragon/rps-front
+    ports:
+      - "5173:5173"
+    networks:
+      - rps-net
+      
+networks:
+  rps-net:
+    external: true
