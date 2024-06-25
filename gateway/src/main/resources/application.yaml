@@ -1,0 +1,57 @@
+server:
+  port: 8000
+
+spring:
+  cloud:
+    consul:
+      enabled: true
+      discovery:
+        # Get only services that
+        query-passing: true
+      config:
+        data-key: application.yml
+        prefixes: config
+        format: yaml
+        default-context: defaults
+    gateway:
+      routes:
+        - id: rpsgame
+          uri: lb://rpsgame/
+          predicates:
+            - Path=/results,/results/**
+        - id: leaderboard
+          uri: lb://leaderboard/
+          predicates:
+            - Path=/leaders,/stats
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedHeaders:
+              - "*"
+            allowedMethods:
+              - "GET"
+              - "POST"
+              - "OPTIONS"
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3
+            methods: GET,POST
+  application:
+    name: gateway
+  config:
+    import: "optional:consul:"
+
+# Uncomment the configuration below if you want to enable route matching logs
+logging:
+  level:
+    'org.springframework.cloud.gateway.handler.predicate': trace
+    "org.springframework.amqp.rabbit.connection.CachingConnectionFactory": WARN
+
+#micrometer
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
